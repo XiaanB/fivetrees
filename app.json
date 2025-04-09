@@ -3,6 +3,7 @@
     "scheme": "acme",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
+    "newArchEnabled": "true",
     "web": {
       "output": "static"
     },
@@ -15,6 +16,17 @@
       ]
     ],
     "name": "fivetrees",
-    "slug": "fivetrees"
+    "slug": "fivetrees",
+    "android": {
+      "package": "com.xiaan.fivetrees"
+    },
+    "extra": {
+      "router": {
+        "origin": "https://n"
+      },
+      "eas": {
+        "projectId": "0452d655-d7bd-4f30-97a3-e9eb087fb457"
+      }
+    }
   }
 }
