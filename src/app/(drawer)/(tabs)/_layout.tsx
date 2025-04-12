@@ -4,6 +4,8 @@ import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome icons fo
 import { TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router'; // For navigation
 import Footer from 'components/footer'; // Footer component
+import logo from '../../..//assets/images/logo.jpg'; // Adjust the path to your video
+
 
 export default function TabsLayout() {
   const router = useRouter();
@@ -42,6 +44,24 @@ export default function TabsLayout() {
 
             return <Ionicons name={iconName} size={size} color={color} />;
           },
+
+          headerLeft: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 10 }}>
+              {/* Logo */}
+              <TouchableOpacity onPress={() => router.push('/home')}>
+                {/* <Image
+                    source={logo}
+                    style={{ width: 32, height: 32, resizeMode: 'contain', marginRight: 15 }}
+                  /> */}
+              </TouchableOpacity>
+
+              {/* Drawer Button */}
+              <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+                <Ionicons name="menu" size={28} color="black" />
+              </TouchableOpacity>
+            </View>
+          ),
+
           headerRight: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {/* User Icon */}
