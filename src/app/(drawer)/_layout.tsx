@@ -3,6 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { auth } from '../../../services/firebaseConfig'; // adjust path as needed
 import { router } from 'expo-router';
+import CustomHeader from '../../../components/CustomHeader';
 
 function CustomDrawerContent(props) {
   const handleSignOut = async () => {
@@ -30,7 +31,8 @@ function CustomDrawerContent(props) {
 
 export default function DrawerLayout() {
   return (
-     <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />}>
+    <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />}>
+      
       <Drawer.Screen
         name="(tabs)"
         options={{ drawerLabel: 'Home', headerShown: false }}

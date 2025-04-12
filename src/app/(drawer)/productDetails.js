@@ -2,6 +2,7 @@ import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'rea
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { auth } from '../../../services/firebaseConfig'; // update based on your new structure
 import { useCartStore } from '../../../services/store/cartStore'; // update path if different
+import CustomHeader from '../../../components/CustomHeader';
 
 const isGuest = auth.currentUser?.isAnonymous;
 
@@ -21,6 +22,8 @@ export default function ProductDetails() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+            <CustomHeader title="Back" />
+      
       <Text style={styles.title}>Product Details</Text>
 
       <Image source={{ uri: product.image }} style={styles.productImage} />

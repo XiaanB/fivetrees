@@ -4,11 +4,12 @@ import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome icons fo
 import { TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router'; // For navigation
 import Footer from 'components/footer'; // Footer component
-import logo from '../../..//assets/images/logo.jpg'; // Adjust the path to your video
+import { DrawerActions, useNavigation } from '@react-navigation/native'; // 👈 Add this import
 
 
 export default function TabsLayout() {
   const router = useRouter();
+  const navigation = useNavigation(); // Use the hook inside the function component
 
   return (
     <>
@@ -59,6 +60,7 @@ export default function TabsLayout() {
               <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
                 <Ionicons name="menu" size={28} color="black" />
               </TouchableOpacity>
+
             </View>
           ),
 
@@ -76,7 +78,6 @@ export default function TabsLayout() {
               <TouchableOpacity
                 onPress={() => router.push('/cart')} // Navigate to cart screen when clicked
                 style={{ marginRight: 20 }} // Add space between user and cart icon
-
               >
                 <FontAwesome name="shopping-cart" size={25} color="black" />
               </TouchableOpacity>
