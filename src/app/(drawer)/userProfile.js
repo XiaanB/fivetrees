@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Button, Switch, StyleSheet, ScrollView, Alert, TouchableOpacity } from "react-native";
-import { auth } from "../../services/firebaseConfig";
-import { initDB } from "../../services/db"; // Make sure this uses expo-sqlite/next
+import { auth } from "../../../services/firebaseConfig";
+import { initDB } from "../../../services/db"; // Make sure this uses expo-sqlite/next
+import { useRouter } from "expo-router";
 
 const ProfileScreen = () => {
   const [form, setForm] = useState({
@@ -15,6 +16,7 @@ const ProfileScreen = () => {
     newsletter: false,
     promo: false,
   });
+  const router = useRouter();
 
   const [db, setDb] = useState(null);
 
@@ -162,6 +164,10 @@ const ProfileScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
+      <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <Text style={styles.backButtonText}>← Back</Text>
+      </TouchableOpacity>
+
       <Text style={styles.title}>User Profile</Text>
 
       {["firstName", "lastName", "email", "phone", "address"].map((field) => (
@@ -276,6 +282,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  backButton: {
+  marginBottom: 10,
+  paddingVertical: 8,
+  paddingHorizontal: 12,
+  backgroundColor: "#ddd",
+  borderRadius: 6,
+  alignSelf: "flex-start",
+},
+
+backButtonText: {
+  fontSize: 16,
+  color: "#333",
+},
+
 });
 
 export default ProfileScreen;

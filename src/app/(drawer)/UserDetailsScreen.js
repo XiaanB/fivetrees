@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   View, Text, Button, StyleSheet, ScrollView, Image, Alert
 } from "react-native";
-import { initDB } from "../../services/db"; // adjust path
+import { initDB } from "../../../services/db"; // adjust path
+import { router } from 'expo-router';
 
 const UserDetailsScreen = ({ navigation }) => {
   const [user, setUser] = useState(null);
@@ -40,7 +41,7 @@ const UserDetailsScreen = ({ navigation }) => {
     return (
       <View style={styles.container}>
         <Text>No user found</Text>
-        <Button title="Add New User" onPress={() => navigation.navigate("Profile")} />
+        <Button title="Add New User" onPress={() => router.push('/(drawer)/userProfile')} />
       </View>
     );
   }

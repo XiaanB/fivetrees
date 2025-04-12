@@ -4,14 +4,12 @@ import { useRouter } from "expo-router";
 import {
   signInWithEmailAndPassword,
   signInAnonymously,
-  onAuthStateChanged,
   GoogleAuthProvider,
   signInWithCredential,
 } from "firebase/auth";
-import { auth } from "../../../services/firebaseConfig";
+import { auth } from "../../services/firebaseConfig";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
-import { makeRedirectUri } from "expo-auth-session";
 import { Alert } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
@@ -48,7 +46,7 @@ const LoginScreen = () => {
       signInWithCredential(auth, credential) // Sign in with the credential
         .then(() => {
           Alert.alert("Success", "You are signed in with Google!");
-          router.replace("/(tabs)"); // Redirect to the home page
+          router.replace('/(drawer)/(tabs)/home');
         })
         .catch((error) => {
           console.error("Google Sign-In Error:", error);
@@ -61,7 +59,7 @@ const LoginScreen = () => {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      router.replace("/(tabs)/home");
+      router.replace('/(drawer)/(tabs)/home');
     } catch (error) {
       setErrorMessage(error.message);
       console.error("Login Error:", error.message);
@@ -71,7 +69,7 @@ const LoginScreen = () => {
   const handleGuestLogin = async () => {
     try {
       await signInAnonymously(auth);
-      router.push("/(tabs)/home");
+      router.replace('/(drawer)/(tabs)/home');
     } catch (error) {
       setErrorMessage("Error signing in as guest");
       console.error("Anonymous Login Error:", error.message);
@@ -138,7 +136,7 @@ const LoginScreen = () => {
         <Text style={styles.guestButtonText}>Continue as Guest</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+      <TouchableOpacity onPress={() => router.push("signup")}>
         <Text style={styles.link}>Don't have an account? Sign up</Text>
       </TouchableOpacity>
 
