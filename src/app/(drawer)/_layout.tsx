@@ -33,7 +33,7 @@ export default function DrawerLayout() {
      <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />}>
       <Drawer.Screen
         name="(tabs)"
-        options={{ drawerLabel: 'Home', title: 'Main' }}
+        options={{ drawerLabel: 'Home', headerShown: false }}
       />
       <Drawer.Screen
         name="profile"
