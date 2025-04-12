@@ -1,9 +1,11 @@
 {
   "expo": {
-    "scheme": "acme",
+    "name": "fivetrees",
+    "scheme": "fivetrees",
+    "slug": "fivetrees",
+    "owner": "xiaan",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
-    "newArchEnabled": "true",
     "web": {
       "output": "static"
     },
@@ -13,10 +15,9 @@
         {
           "origin": "https://n"
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
-    "name": "fivetrees",
-    "slug": "fivetrees",
     "android": {
       "package": "com.xiaan.fivetrees"
     },
