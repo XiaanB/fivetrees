@@ -11,6 +11,9 @@ import { auth } from "../../services/firebaseConfig";
 import * as WebBrowser from "expo-web-browser";
 import * as Google from "expo-auth-session/providers/google";
 import { Alert } from "react-native";
+import { sendPasswordResetEmail } from "firebase/auth";
+import { getUserRole } from "../../services/roleService";
+
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -25,14 +28,14 @@ const LoginScreen = () => {
 
 
   const redirectUri = "https://auth.expo.io/@xiaan/fivetrees"
-  console.log("1 Google redirect URI:", redirectUri); 
+  // console.log("1 Google redirect URI:", redirectUri); 
 
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-  webClientId: "582444083351-18bib0ib1suegl75vkgc7p95sl1ac8e4.apps.googleusercontent.com", // ✅ The correct Web client ID from your Firebase project
+  webClientId: "582444083351-18bib0ib1suegl75vkgc7p95sl1ac8e4.apps.googleusercontent.com", 
   androidClientId: "582444083351-18bib0ib1suegl75vkgc7p95sl1ac8e4.apps.googleusercontent.com",
-  expoClientId: "582444083351-18bib0ib1suegl75vkgc7p95sl1ac8e4.apps.googleusercontent.com", // 👈 Also set this to the web client ID (because Expo Go acts like a web app)
-  redirectUri: "https://auth.expo.io/@xiaan/fivetrees", // ✅ Exact match to your OAuth setup
+  expoClientId: "582444083351-18bib0ib1suegl75vkgc7p95sl1ac8e4.apps.googleusercontent.com", 
+  redirectUri: "https://auth.expo.io/@xiaan/fivetrees", 
 });
 
 
@@ -40,10 +43,10 @@ const LoginScreen = () => {
     // Handle Google Sign-In response
   useEffect(() => {
     if (response?.type === "success") {
-      const { id_token } = response.params; // Get the id_token from Google
-      const credential = GoogleAuthProvider.credential(id_token); // Create Firebase credential
+      const { id_token } = response.params; 
+      const credential = GoogleAuthProvider.credential(id_token); 
 
-      signInWithCredential(auth, credential) // Sign in with the credential
+      signInWithCredential(auth, credential) 
         .then(() => {
           Alert.alert("Success", "You are signed in with Google!");
           router.replace('/(drawer)/(tabs)/home');
@@ -57,31 +60,77 @@ const LoginScreen = () => {
 
 
   const handleLogin = async () => {
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      router.replace('/(drawer)/(tabs)/home');
-    } catch (error) {
-      setErrorMessage(error.message);
-      console.error("Login Error:", error.message);
-    }
-  };
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    
+    const result = await getUserRole();
+    if (result.success) {
+      const userRole = result.role;
+      console.log("User role:", userRole);
 
-  const handleGuestLogin = async () => {
-    try {
-      await signInAnonymously(auth);
-      router.replace('/(drawer)/(tabs)/home');
-    } catch (error) {
-      setErrorMessage("Error signing in as guest");
-      console.error("Anonymous Login Error:", error.message);
-    }
-  };
+      if (userRole === "admin") {
+        setIsAdmin(true);
+      }
 
+      router.replace("/(drawer)/(tabs)/home");
+    } else {
+      console.error("Role fetch failed:", result.error);
+    }
+  } catch (error) {
+    setErrorMessage(error.message);
+    console.error("Login Error:", error.message);
+  }
+};
+
+const handleGuestLogin = async () => {
+  try {
+    const userCredential = await signInAnonymously(auth);
+    const user = userCredential.user;
+
+    console.log("Signed in as guest:", user.uid);
+
+    setIsAdmin(false); 
+    setUser({ ...user, role: "guest" });
+
+    router.replace("/(drawer)/(tabs)/home");
+  } catch (error) {
+    setErrorMessage("Error signing in as guest");
+    console.error("Anonymous Login Error:", error.message);
+  }
+  };
+  
+  
   const handleGoogleSignIn = async () => {
-    console.log("ACTUAL redirect URI:", redirectUri); // Log the redirect URI
-    console.log("Request client ID actually used:", request?.clientId);
-    console.log("Google Sign-In request:", request); // Log the request object
+    // console.log("ACTUAL redirect URI:", redirectUri); // Log the redirect URI
+    // console.log("Request client ID actually used:", request?.clientId);
+    // console.log("Google Sign-In request:", request); // Log the request object
     promptAsync({ useProxy: true, redirectUri });
   };
+
+    const handlePasswordReset = async () => {
+  if (!email) {
+    Alert.alert("Please enter your email address first.");
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    Alert.alert("Password Reset", "Check your email to reset your password.");
+  } catch (error) {
+    console.error("Reset error:", error.message);
+    Alert.alert("Error", error.message);
+    }
+  };
+
+//   const handlePasswordReset = async () => {
+//   const result = await resetPassword(email);
+//   if (result.success) {
+//     alert("Check your email to reset your password.");
+//   } else {
+//     alert("Error: " + result.error);
+//   }
+// };
+
   
 
   return (
@@ -118,6 +167,13 @@ const LoginScreen = () => {
             {isAdmin ? "Login as Admin" : "Login"}
         </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity onPress={handlePasswordReset} style={{ marginTop: 10 }}>
+         <Text style={{ color: "#007bff", textAlign: "center" }}>
+           Forgot Password?
+         </Text>
+        </TouchableOpacity>
+
 
         <TouchableOpacity
         style={styles.switchButton}

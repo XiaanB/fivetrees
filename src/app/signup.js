@@ -1,21 +1,32 @@
 import { useState } from "react";
 import { View, Text, TextInput, Button, Alert } from "react-native";
-import { auth } from "../../services/firebaseConfig";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { signUp, auth } from "../../services/auth"; // double-check this path
 import { useRouter } from "expo-router";
 
 export default function SignUpScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
+  
 
   const handleSignUp = async () => {
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const result = await signUp(email, password, "user");
+
+      if (result.success) {
+        Alert.alert("Success", "Account created successfully!");
+        router.push("login");
+      } else {
+        Alert.alert("Error", result.error);
+      }
+
       Alert.alert("Success", "Account created successfully!");
-      router.push("sign-in"); // Redirect to sign-in after signup
+      router.push("login"); 
+      console.log("About to write to Firestore...");
     } catch (error) {
       Alert.alert("Error", error.message);
+            Alert.alert("Error", error.message);
+
     }
   };
 
