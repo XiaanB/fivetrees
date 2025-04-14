@@ -1,22 +1,25 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { FontAwesome } from '@expo/vector-icons'; // Import FontAwesome icons for user and cart
+import { FontAwesome } from '@expo/vector-icons'; 
 import { TouchableOpacity, View } from 'react-native';
-import { useRouter } from 'expo-router'; // For navigation
-import Footer from 'components/footer'; // Footer component
-import { DrawerActions, useNavigation } from '@react-navigation/native'; // 👈 Add this import
+import { useRouter } from 'expo-router'; 
+import Footer from 'components/footer'; 
+import { DrawerActions, useNavigation } from '@react-navigation/native'; 
+import { useAuth } from '../../../../services/AuthContext';
 
 
-export default function TabsLayout() {
+
+export default function TabsLayout({children}) {
   const router = useRouter();
-  const navigation = useNavigation(); // Use the hook inside the function component
+  const navigation = useNavigation(); 
+  const { userRole } = useAuth(); 
 
   return (
     <>
       <Tabs
         screenOptions={({ route }) => ({
-          tabBarActiveTintColor: '#27ae60', // selected tab color
-          tabBarInactiveTintColor: '#95a5a6', // unselected tab color
+          tabBarActiveTintColor: '#27ae60', 
+          tabBarInactiveTintColor: '#95a5a6', 
           tabBarStyle: {
             backgroundColor: '#fff',
             borderTopWidth: 0.5,
@@ -56,11 +59,11 @@ export default function TabsLayout() {
                   /> */}
               </TouchableOpacity>
 
-              {/* Drawer Button */}
+            {(userRole === 'admin' || userRole === 'user') && (
               <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
                 <Ionicons name="menu" size={28} color="black" />
               </TouchableOpacity>
-
+              )}
             </View>
           ),
 
@@ -68,16 +71,16 @@ export default function TabsLayout() {
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {/* User Icon */}
               <TouchableOpacity
-                onPress={() => router.push('/profile')} // Navigate to profile screen when clicked
-                style={{ marginRight: 20 }} // Add space between user and cart icon
+                onPress={() => router.push('userProfile')} 
+                style={{ marginRight: 20 }} 
               >
                 <FontAwesome name="user" size={25} color="black" />
               </TouchableOpacity>
 
               {/* Cart Icon */}
               <TouchableOpacity
-                onPress={() => router.push('/cart')} // Navigate to cart screen when clicked
-                style={{ marginRight: 20 }} // Add space between user and cart icon
+                onPress={() => router.push('/cart')} 
+                style={{ marginRight: 20 }} 
               >
                 <FontAwesome name="shopping-cart" size={25} color="black" />
               </TouchableOpacity>
@@ -88,10 +91,12 @@ export default function TabsLayout() {
         <Tabs.Screen name="home" options={{ title: 'Home' }} />
         <Tabs.Screen name="education" options={{ title: 'Education' }} />
         <Tabs.Screen name="products" options={{ title: 'Products' }} />
+        <Tabs.Screen name="index" options={{ title: 'About Us' }} />
+
       </Tabs>
 
-      {/* Footer Component */}
       <Footer />
-    </>
+      </>
+
   );
 }

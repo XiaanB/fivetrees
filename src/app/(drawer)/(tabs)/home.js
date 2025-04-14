@@ -1,11 +1,23 @@
-import { View, Text, Image, FlatList, Dimensions, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useRef, useState } from 'react';
+import {
+  ScrollView,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Image,
+  TouchableOpacity,
+  PanResponder,
+  View,
+} from 'react-native';
+import { Link } from 'expo-router';
 import { MotiView } from 'moti';
 import { Video } from 'expo-av';
+
 import bannerImage from '../../../../assets/images/Banner.jpg';
-import myVideo from '../../../..//assets/videos/Banner.mp4';
-import special1 from '../../../..//assets/images/special1.jpg';
-import special2 from '../../../..//assets/images/special2.jpg';
-import special3 from '../../../..//assets/images/special3.jpg';
+import myVideo from '../../../../assets/videos/Banner.mp4';
+import special1 from '../../../../assets/images/special1.jpg';
+import special2 from '../../../../assets/images/special2.jpg';
+import special3 from '../../../../assets/images/special3.jpg';
 
 const { width } = Dimensions.get('window');
 
@@ -16,91 +28,149 @@ const specials = [
 ];
 
 export default function HomePage() {
+  const [position, setPosition] = useState({ x: 20, y: 500 });
+  const pan = useRef({ x: 20, y: 500 }).current;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        const newX = pan.x + gestureState.dx;
+        const newY = pan.y + gestureState.dy;
+        setPosition({ x: newX, y: newY });
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        pan.x += gestureState.dx;
+        pan.y += gestureState.dy;
+      },
+    })
+  ).current;
+
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: '#f9f9f9' }}
-      contentContainerStyle={{ paddingBottom: 40 }}
-    >
-      {/* ✅ Animated Banner Section */}
-      <MotiView
-        from={{ opacity: 0, translateY: -50 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'spring', duration: 800 }}
-        style={{
-          width: '100%',
-          height: 250,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: '#4CAF50',
-        }}
-      >
-        <Image
-          source={bannerImage}
-          style={{ width: '100%', height: '100%', position: 'absolute' }}
-          resizeMode="cover"
-        />
-        <Text style={{ color: '#fff', fontSize: 24, fontWeight: 'bold', textAlign: 'center' }}>
-          Welcome to Five Trees
-        </Text>
-      </MotiView>
+    <View style={{ flex: 1 }}>
+      {/* Scrollable content */}
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <MotiView style={styles.bannerContainer} from={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <Image source={bannerImage} style={styles.bannerImage} resizeMode="cover" />
+          <Text style={styles.bannerText}>Welcome to Five Trees</Text>
+        </MotiView>
 
-      {/* ✅ Video Section */}
-      <MotiView
-        from={{ opacity: 0, translateY: 30 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'timing', duration: 800 }}
-      >
-        <Video
-          source={myVideo}
-          rate={1.0}
-          volume={1.0}
-          isMuted={false}
-          resizeMode="cover"
-          shouldPlay
-          isLooping
-          useNativeControls
-          style={{
-            width: width - 40,
-            height: 200,
-            borderRadius: 10,
-            marginHorizontal: 20,
-            marginVertical: 20,
-          }}
-        />
-      </MotiView>
+        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <Video
+            source={myVideo}
+            rate={1.0}
+            volume={1.0}
+            isMuted={false}
+            resizeMode="cover"
+            shouldPlay
+            isLooping
+            useNativeControls
+            style={styles.video}
+          />
+        </MotiView>
 
-      {/* ✅ Specials Section */}
-      <Text style={{ fontSize: 22, fontWeight: 'bold', margin: 20 }}>🔥 Specials</Text>
-      <FlatList
-        data={specials}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
+        <Text style={styles.sectionTitle}>🔥 Specials</Text>
+
+        {specials.map((item, index) => (
           <MotiView
-            from={{ opacity: 0, scale: 0.8 }}
+            key={item.id}
+            from={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', delay: index * 100 }}
-            style={{
-              backgroundColor: '#fff',
-              padding: 15,
-              borderRadius: 10,
-              marginHorizontal: 10,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.2,
-              shadowRadius: 3,
-            }}
+            transition={{ delay: index * 100 }}
+            style={styles.specialCard}
           >
-            <Image
-              source={item.image}
-              style={{ width: width * 0.6, height: 150, borderRadius: 10 }}
-              resizeMode="cover"
-            />
-            <Text style={{ fontSize: 16, fontWeight: 'bold', marginTop: 10 }}>{item.title}</Text>
+            <Image source={item.image} style={styles.specialImage} />
+            <Text style={styles.specialTitle}>{item.title}</Text>
           </MotiView>
-        )}
-      />
-    </ScrollView>
+        ))}
+      </ScrollView>
+
+      {/* Floating draggable button */}
+      <View
+        style={[styles.floatingButton, { top: position.y, left: position.x }]}
+        {...panResponder.panHandlers}
+      >
+        <Link href="/settings" asChild>
+          <TouchableOpacity style={styles.buttonInner}>
+            <Text style={styles.buttonText}>⚙️</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 100,
+    backgroundColor: '#f9f9f9',
+  },
+  bannerContainer: {
+    width: '100%',
+    height: 250,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+  },
+  bannerImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
+  bannerText: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  video: {
+    width: width - 40,
+    height: 200,
+    borderRadius: 10,
+    marginHorizontal: 20,
+    marginVertical: 20,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    margin: 20,
+  },
+  specialCard: {
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 20,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  specialImage: {
+    width: '100%',
+    height: 150,
+    borderRadius: 10,
+  },
+  specialTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 10,
+  },
+  floatingButton: {
+    position: 'absolute',
+    zIndex: 999,
+  },
+  buttonInner: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(173, 216, 230, 0.6)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+  },
+  buttonText: {
+    fontSize: 26,
+    color: '#005f73',
+  },
+});

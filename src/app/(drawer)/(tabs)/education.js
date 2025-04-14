@@ -1,17 +1,16 @@
 import React from 'react';
 import { ScrollView, Text, Image, TouchableOpacity } from 'react-native';
 import { MotiView } from 'moti';
-import { useRouter } from 'expo-router'; // Use the useRouter hook for navigation
+import { useRouter } from 'expo-router'; 
 import { FontAwesome } from '@expo/vector-icons';
 
-import bannerImage from '../../../../assets/images/Banner.jpg';
 import howitworks3 from '../../../../assets/images/Howitworks2.jpg';
 import HowItWorksImage2 from '../../../../assets/images/Howitworks3.jpg';
 import HowItWorksImage4 from '../../../../assets/images/Howitworks4.jpg';
 import HowItWorksImage5 from '../../../../assets/images/Howitworks5.jpg';
 
 const Educational = () => {
-    const router = useRouter(); // Use the router from expo-router
+    const router = useRouter(); 
 
     return (
         <ScrollView style={{ flex: 1, backgroundColor: '#f9f9f9', padding: 20 }}>
@@ -103,7 +102,6 @@ const Educational = () => {
     );
 };
 
-// Set the header options directly in expo-router
 export const options = {
     title: 'Educational Information',
     headerLeft: () => (

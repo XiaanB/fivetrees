@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../../../services/firebaseConfig'; // Adjust if your config file is elsewhere
+import { db } from '../../../../services/firebaseConfig'; 
 
 export default function Products() {
   const router = useRouter();
