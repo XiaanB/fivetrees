@@ -11,23 +11,21 @@ export default function CartPage() {
 
     const total = cartItems
       .reduce((sum, item) => {
-        // Ensure price and quantity are valid numbers
-        const price = parseFloat(item?.price ?? '0'); // Default to 0 if price is invalid
-        const quantity = parseInt(item?.quantity ?? 1); // Default to 1 if quantity is invalid
+        const price = parseFloat(item?.price ?? '0'); 
+        const quantity = parseInt(item?.quantity ?? 1); 
         return sum + price * quantity;
       }, 0)
     .toFixed(2);
 
     const handleCheckout = () => {
         console.log('Proceeding to checkout...');
-        router.push('checkOut'); // 👈 must match file structure in /app
+        router.push('checkOut'); 
     };
 
     const handleQuantityChange = (itemId, increment) => {
         const item = cartItems.find(i => i.id === itemId);
         if (item) {
             const newQuantity = item.quantity + increment;
-            // Only update quantity if it's a valid positive number
             if (newQuantity > 0) {
                 updateQuantity(itemId, newQuantity);
             }
@@ -44,7 +42,6 @@ export default function CartPage() {
             <Text style={styles.emptyCart}>Your cart is empty.</Text>
         ) : (
             cartItems.map((item, index) => {
-                // Ensure price and quantity are valid numbers
                 const price = parseFloat(item?.price ?? '0'); 
                 const quantity = parseInt(item?.quantity ?? 1);
                 return (
@@ -54,14 +51,13 @@ export default function CartPage() {
                             <Text style={styles.itemName}>{item.name}</Text>
                             <Text style={styles.itemPrice}>${price}</Text>
 
-                            {/* Quantity controls */}
                             <View style={styles.quantityContainer}>
                                 <TouchableOpacity 
                                     onPress={() => handleQuantityChange(item.id, -1)} 
                                     style={styles.quantityButton}
                                     disabled={quantity <= 1}
                                 >
-                                    <Text style={styles.quantityButtonText}>-</Text>
+                                <Text style={styles.quantityButtonText}>-</Text>
                                 </TouchableOpacity>
                                 <Text style={styles.quantityText}>{quantity}</Text>
                                 <TouchableOpacity 
@@ -75,6 +71,7 @@ export default function CartPage() {
                             <TouchableOpacity onPress={() => removeFromCart(item.id)}>
                                 <Text style={styles.removeText}>Remove</Text>
                             </TouchableOpacity>
+                            console.log('Cart page items:', cartItems);
                         </View>
                     </View>
                 );

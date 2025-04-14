@@ -1,28 +1,26 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useCartStore } from '../../../services/store/cartStore'; // Importing cart store
+import { useCartStore } from '../../../services/store/cartStore'; 
 import CustomHeader from '../../../components/CustomHeader';
 
 
 export default function Checkout() {
   const router = useRouter();
 
-  // Fetch cart data dynamically from the store
+
   const cartItems = useCartStore((state) => state.cart);
 
   const totalPrice = cartItems.reduce((acc, item) => {
-    const price = parseFloat(item.price) || 0; // Ensure price is a number
+    const price = parseFloat(item.price) || 0; 
     return acc + price * item.quantity;
-  }, 0).toFixed(2); // Ensure totalPrice is a string with 2 decimals
+  }, 0).toFixed(2); 
 
-  // State for shipping details
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Validate Shipping Info before proceeding
   const validateShippingInfo = () => {
     if (!name || !address || !email) {
       alert('Please fill in your shipping details!');
@@ -46,12 +44,6 @@ export default function Checkout() {
     console.log('Proceeding with Stripe payment...');
 
     try {
-      // Example call to backend to create a payment intent
-      // const paymentIntent = await createPaymentIntent(totalPrice);
-      // await stripe.confirmPayment(paymentIntent.client_secret, {
-      //   type: 'Card',
-      //   billingDetails: { name, email, address }
-      // });
 
       router.push('/payment-success');
     } catch (error) {
@@ -72,25 +64,28 @@ export default function Checkout() {
       <View style={styles.reviewContainer}>
         <Text style={styles.sectionTitle}>Order Summary</Text>
         {cartItems.map((item) => {
-          const price = parseFloat(item.price) || 0; // Ensure price is a valid number
+          const price = parseFloat(item.price) || 0;
+          const quantity = parseInt(item.quantity, 10) || 1;
+
           return (
             <View key={item.id} style={styles.cartItem}>
               <Text style={styles.productName}>{item.name}</Text>
               <Text style={styles.productDetails}>
-                ${price.toFixed(2)} x {item.quantity}
+                ${price.toFixed(2)} x {quantity}
               </Text>
               <Text style={styles.productTotal}>
-                ${(price * item.quantity).toFixed(2)}
+                ${(price * quantity).toFixed(2)}
               </Text>
             </View>
           );
         })}
+
         <View style={styles.totalContainer}>
           <Text style={styles.totalText}>Total: ${totalPrice}</Text>
         </View>
       </View>
 
-      {/* Shipping Information */}
+
       <View style={styles.shippingContainer}>
         <Text style={styles.sectionTitle}>Shipping Information</Text>
         <TextInput
@@ -114,7 +109,6 @@ export default function Checkout() {
         />
       </View>
 
-      {/* PayPal Button */}
       <TouchableOpacity
         style={styles.paypalButton}
         onPress={handleProceedToPayPal}
@@ -125,7 +119,6 @@ export default function Checkout() {
         </Text>
       </TouchableOpacity>
 
-      {/* Stripe Credit/Debit Card Button */}
       <TouchableOpacity
         style={styles.stripeButton}
         onPress={handleStripePayment}
@@ -136,7 +129,6 @@ export default function Checkout() {
         </Text>
       </TouchableOpacity>
 
-      {/* Proceed to Checkout Button */}
       <TouchableOpacity
         style={styles.proceedButton}
         onPress={handleStripePayment}
@@ -150,7 +142,6 @@ export default function Checkout() {
   );
 }
 
-// Styles
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,

@@ -1,25 +1,40 @@
 import { Drawer } from 'expo-router/drawer';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet, TouchableOpacity } from 'react-native';
 import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { auth } from '../../../services/firebaseConfig'; // adjust path as needed
 import { router } from 'expo-router';
-import CustomHeader from '../../../components/CustomHeader';
+import { useAuth } from '../../../services/AuthContext';
+import { AuthProvider  } from '../../../services/AuthContext';
+
 
 function CustomDrawerContent(props) {
+  const { userRole } = useAuth(); 
+
   const handleSignOut = async () => {
     try {
       await auth.signOut();
-      router.replace('/login'); // or wherever your login screen is
+      router.replace('/login'); 
     } catch (error) {
       console.error('Sign out error:', error);
     }
   };
   return (
+    
     <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1 }}>
       <DrawerItemList {...props} />
 
-      {/* Spacer to push button to bottom */}
+      
       <View style={{ flex: 1 }} />
+
+      
+      {userRole === 'admin' && (
+        <TouchableOpacity
+          style={styles.dashboardButton}
+          onPress={() => router.push('/(admin)/dashboard')}
+        >
+          <Text style={styles.dashboardText}>Admin Dashboard</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Sign Out */}
       <Pressable onPress={handleSignOut} style={styles.signOutButton}>
@@ -31,6 +46,7 @@ function CustomDrawerContent(props) {
 
 export default function DrawerLayout() {
   return (
+    <AuthProvider>
     <Drawer drawerContent={(props) => <CustomDrawerContent {...props} />}>
       
       <Drawer.Screen
@@ -45,11 +61,31 @@ export default function DrawerLayout() {
         name="settings"
         options={{ drawerLabel: 'Settings' }}
       />
-    </Drawer>
+      <Drawer.Screen
+        name="(drawer)/Map"
+        options={{
+          drawerItemStyle: { display: 'none' },
+          }}
+      />
+
+      </Drawer>
+      </AuthProvider>
   );
 }
 
 const styles = StyleSheet.create({
+  dashboardButton: {
+    padding: 16,
+    backgroundColor: '#1976D2',
+    marginHorizontal: 10,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  dashboardText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
   signOutButton: {
     padding: 16,
     backgroundColor: '#f44336',

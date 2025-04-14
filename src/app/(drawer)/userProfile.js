@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Button, Switch, StyleSheet, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { auth } from "../../../services/firebaseConfig";
-import { initDB } from "../../../services/db"; // Make sure this uses expo-sqlite/next
+import { initDB } from "../../../services/db"; 
 import { useRouter } from "expo-router";
+import CustomHeader from '../../../components/CustomHeader';
+import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'react-native';
+import ProfilePic from '../../../assets/images/profile.jpg'
+
+
+
 
 const ProfileScreen = () => {
+
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -21,9 +29,13 @@ const ProfileScreen = () => {
   const [db, setDb] = useState(null);
 
   useEffect(() => {
+    
     const setup = async () => {
+      
       const database = await initDB();
       setDb(database);
+
+      await database.execAsync(`DROP TABLE IF EXISTS user;`);
 
       await database.execAsync(`
         CREATE TABLE IF NOT EXISTS user (
@@ -68,17 +80,18 @@ const ProfileScreen = () => {
     setup();
   }, []);
 
-  const handleSave = () => {
-    Alert.alert(
-      "Save Info",
-      "Are you sure you want to save this profile?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Yes, Save",
-          onPress: async () => {
-            if (!db) return;
+const handleSave = () => {
+  Alert.alert(
+    "Save Info",
+    "Are you sure you want to save this profile?",
+    [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Yes, Save",
+        onPress: async () => {
+          if (!db) return;
 
+          try {
             await db.runAsync("DELETE FROM user");
 
             await db.runAsync(
@@ -97,29 +110,49 @@ const ProfileScreen = () => {
               ]
             );
 
-            Alert.alert("Success", "Profile saved successfully!");
-          },
+            Alert.alert("Saved", "User info saved to database!");
+            // Clear the form only after DB save succeeds
+            // setForm({
+            //   firstName: "",
+            //   lastName: "",
+            //   email: "",
+            //   phone: "",
+            //   address: "",
+            //   photoUri: null,
+            //   subscribe: false,
+            //   newsletter: false,
+            //   promo: false,
+            // });
+          } catch (error) {
+            console.error("Error saving profile:", error);
+            Alert.alert("Error", "Failed to save user info.");
+          }
         },
-      ]
-    );
-    Alert.alert("Saved", "User info saved to database!", [
-    {
-      text: "OK",
-      onPress: () =>
-        setForm({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          address: "",
-          photoUri: null,
-          subscribe: false,
-          newsletter: false,
-          promo: false,
-        }),
-    },
-  ]);
+      },
+    ]
+  );
+};
+
+  const logUsersFromDB = async () => {
+  if (!db) {
+    console.log("DB not initialized yet");
+    return;
+  }
+
+  try {
+    const users = await db.getAllAsync("SELECT * FROM user");
+    console.log("Users in DB:", users);
+  } catch (error) {
+    console.error("Error fetching users from DB:", error);
+  }
   };
+  useEffect(() => {
+  if (db) {
+    logUsersFromDB();
+  }
+}, [db]);
+
+
 
   const handleDelete = () => {
     Alert.alert(
@@ -162,13 +195,89 @@ const ProfileScreen = () => {
     auth.signOut();
   };
 
+    const handleSignOut = async () => {
+      try {
+        await auth.signOut();
+        router.replace('/login'); 
+      } catch (error) {
+        console.error('Sign out error:', error);
+      }
+    };
+  
+
+  const pickImage = async () => {
+  const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!permissionResult.granted) {
+    alert("Permission to access gallery is required!");
+    return;
+  }
+
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.7,
+  });
+
+  if (!result.canceled) {
+    setForm({ ...form, photoUri: result.assets[0].uri });
+  }
+};
+
+const takePhoto = async () => {
+  const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+  if (!permissionResult.granted) {
+    alert("Permission to access camera is required!");
+    return;
+  }
+
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.7,
+  });
+
+  if (!result.canceled) {
+    setForm({ ...form, photoUri: result.assets[0].uri });
+  }
+};
+  
+
   return (
     <ScrollView style={styles.container}>
+                  <CustomHeader title="Back" />
+
+
+
       <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
 
       <Text style={styles.title}>User Profile</Text>
+
+      <View style={{ alignItems: 'center', marginBottom: 20 }}>
+        <TouchableOpacity onPress={pickImage}>
+          <Image
+            source={form.photoUri ? { uri: form.photoUri } : ProfilePic}
+            style={{
+              width: 120,
+              height: 120,
+              borderRadius: 60,
+              marginBottom: 10,
+              borderWidth: 2,
+              borderColor: "#ccc",
+            }}
+            resizeMode="cover"
+          />
+
+          <Text style={{ color: "#3498db", textAlign: "center" }}>Choose from Gallery</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={takePhoto}>
+          <Text style={{ color: "#27ae60", marginTop: 10 }}>Take Photo</Text>
+        </TouchableOpacity>
+      </View>
+
 
       {["firstName", "lastName", "email", "phone", "address"].map((field) => (
         <TextInput
@@ -205,15 +314,23 @@ const ProfileScreen = () => {
       </View>
 
       <View style={styles.buttonGroup}>
-        <TouchableOpacity style={styles.buttonPrimary} onPress={handleSave}>
+        <TouchableOpacity style={styles.buttonPrimary} 
+        onPress={handleSave}>
           <Text style={styles.buttonText}>Save</Text>
+          
+          
         </TouchableOpacity>
+
+        
+
+        <Button title="Log Users" onPress={logUsersFromDB} />
+
 
         <TouchableOpacity style={styles.buttonDanger} onPress={handleDelete}>
           <Text style={styles.buttonText}>Delete All</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.buttonSecondary} onPress={handleLogout}>
+        <TouchableOpacity style={styles.buttonSecondary} onPress={handleSignOut}>
           <Text style={styles.buttonText}>Logout</Text>
         </TouchableOpacity>
       </View>
@@ -299,3 +416,19 @@ backButtonText: {
 });
 
 export default ProfileScreen;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

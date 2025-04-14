@@ -17,7 +17,7 @@ export default function ProductDetails() {
       return;
     }
     addToCart(product);
-    router.push('/cart'); // or replace with `(tabs)/cart` if needed
+    router.push('/cart'); 
   };
 
   return (
